@@ -36,5 +36,10 @@ Los Cortex-M tienen una memoria con un espacio de direcciones lineal de 4GB (ya 
 - c. Periféricos
 - d. Registros de control internos y de debug del procesador (por ej. Private Peripheral Bus)
 
-
 5. ¿Qué ventajas presenta el uso de los “shadowed pointers” del PSP y el MSP?
+6. Describa los diferentes modos de privilegio y operación del Cortex M, sus relaciones y
+como se conmuta de uno al otro. Describa un ejemplo en el que se pasa del modo
+privilegiado a no priviligiado y nuevamente a privilegiado.
+7. ¿Qué se entiende por modelo de registros ortogonal? Dé un ejemplo
+Los registros son ortogonales cuando cualquier instrucción aplicable a un registro es igualmente aplicable a otro registro. En los ARMv7, los registros r0 a r12 son ortogonales. 
+    - Ej: MOV R4, R0; Copy value from R0 to R4
