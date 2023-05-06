@@ -43,7 +43,13 @@ privilegiado a no priviligiado y nuevamente a privilegiado.
 7. ¿Qué se entiende por modelo de registros ortogonal? Dé un ejemplo
 Los registros son ortogonales cuando cualquier instrucción aplicable a un registro es igualmente aplicable a otro registro. En los ARMv7, los registros r0 a r12 son ortogonales. 
     - Ej: MOV R4, R0; Copy value from R0 to R4
+
+
 17. ¿Qué es el systick? ¿Por qué puede afirmarse que su implementación favorece la portabilidad de los sistemas operativos embebidos?\
 El systick es un timer de los Cortex-M que permite generar una interrupcion periodica, lo que puede ser usados por los OS embebidos para mantener una referencia temporal.
 18. ¿Qué funciones cumple la unidad de protección de memoria (MPU)?\
 La MPU permite restringir el acceso a ciertas regiones de memoria. Es un periferico que permite definir permisos de acceso y atributos a la memoria.
+19. ¿Cuántas regiones pueden configurarse como máximo? ¿Qué ocurre en caso de haber
+solapamientos de las regiones? ¿Qué ocurre con las zonas de memoria no cubiertas por las
+regiones definidas?\
+Como maximo se pueden configurar 8 regiones.
