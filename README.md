@@ -43,6 +43,17 @@ privilegiado a no priviligiado y nuevamente a privilegiado.
 7. ¿Qué se entiende por modelo de registros ortogonal? Dé un ejemplo
 Los registros son ortogonales cuando cualquier instrucción aplicable a un registro es igualmente aplicable a otro registro. En los ARMv7, los registros r0 a r12 son ortogonales. 
     - Ej: MOV R4, R0; Copy value from R0 to R4
+    
+8. ¿Qué ventajas presenta el uso de intrucciones de ejecución condicional (IT)? Dé un ejemplo.
+9. Describa brevemente las excepciones más prioritarias (reset, NMI, Hardfault).
+10. Describa las funciones principales de la pila. ¿Cómo resuelve la arquitectura el llamado a funciones y su retorno?
+11. Describa la secuencia de reset del microprocesador.
+12. ¿Qué entiende por “core peripherals”? ¿Qué diferencia existe entre estos y el resto de los periféricos?
+13. ¿Cómo se implementan las prioridades de las interrupciones? Dé un ejemplo
+14. ¿Qué es el CMSIS? ¿Qué función cumple? ¿Quién lo provee? ¿Qué ventajas aporta?
+15. Cuando ocurre una interrupción, asumiendo que está habilitada ¿Cómo opera el microprocesador para atender a la subrutina correspondiente? Explique con un ejemplo.
+16. ¿Cómo cambia la operación de stacking al utilizar la unidad de punto flotante?
+17. Explique las características avanzadas de atención a interrupciones: tail chaining y late arrival.
 
 
 17. ¿Qué es el systick? ¿Por qué puede afirmarse que su implementación favorece la portabilidad de los sistemas operativos embebidos?\
