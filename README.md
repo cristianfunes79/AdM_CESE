@@ -37,6 +37,16 @@ Los Cortex-M tienen una memoria con un espacio de direcciones lineal de 4GB (ya 
 - d. Registros de control internos y de debug del procesador (por ej. Private Peripheral Bus)
 
 5. ¿Qué ventajas presenta el uso de los “shadowed pointers” del PSP y el MSP?
+La ventaja de usar "shadowed pointers" es que tenemos 2 stack pointers disponibles: 
+- El MSP (Main Stack Pointer): es el stack pointer por defecto. Se usa en Thread mode cuando el bit CONTROL[1] (SPSEL) = 0, y se usa siempre en modo Handler.
+- El PSP (Processor Stack Pointer): se usa en modo Thread cuando SPSEL = 1.\
+
+En sistemas con un SO o RTOS, los exception handlers usan el MSP, mientras que las tareas de aplicacion usan el PSP. Cada tarea de aplicación tiene su propio espacio de stack, y el codigo encargado del cambio de contexto en el SO actualiza el PSP cada vez que se produce un cambio de contexto. En estos casos, el uso de shadowed pointers tiene los siguientes beneficios:
+- Si una aplicacion tiene algún problema que corrompe el stack, el stack utilizado por el SO y por otras tareas permanece intacto, mejorando la robustez del sistema.
+- El espacio de stack de cada tarea solo tiene que cubrir el máximo stack + 1 nivel de stack frame (maximo 9 words incluyendo padding en Cortex-M3 o Cortex-M4 sin FPU, o máximo 27 words en Cortex-M4 con FPU). El stack necesario para las ISR y nested interrupt handling se reserva en el main stack solamente.
+- Hace más fácil crear un SO eficiente para los procesadores Cortex-M.
+- Un SO también puede utilizar la MPU para definir la region del stack que puede usar una tarea de aplicacion.
+
 6. Describa los diferentes modos de privilegio y operación del Cortex M, sus relaciones y
 como se conmuta de uno al otro. Describa un ejemplo en el que se pasa del modo
 privilegiado a no priviligiado y nuevamente a privilegiado.
@@ -44,9 +54,20 @@ privilegiado a no priviligiado y nuevamente a privilegiado.
 Los registros son ortogonales cuando cualquier instrucción aplicable a un registro es igualmente aplicable a otro registro. En los ARMv7, los registros r0 a r12 son ortogonales. 
     - Ej: MOV R4, R0; Copy value from R0 to R4
     
-8. ¿Qué ventajas presenta el uso de intrucciones de ejecución condicional (IT)? Dé un ejemplo.
+8. ¿Qué ventajas presenta el uso de intrucciones de ejecución condicional (IT)? Dé un ejemplo.\
+El uso de instrucciones IT (IF-THEN) puede ayudar a mejorar la performance del código significativamente porque evita algunas de las penalidades de las instrucciones de salto, y también reduce el número de instrucciones de salto. Por ejemplo, un bloque corto de código IF-THEN-ELSE que normalmente requiere de un salto condicional puede ser reemplazado por una simple instrucción IT.
+
 9. Describa brevemente las excepciones más prioritarias (reset, NMI, Hardfault).
-10. Describa las funciones principales de la pila. ¿Cómo resuelve la arquitectura el llamado a funciones y su retorno?
+10. Describa las funciones principales de la pila. ¿Cómo resuelve la arquitectura el llamado a funciones y su retorno?\
+Como en la mayoría de los procesadores, los Cortex-M necesitan memoria de stack para operar y tener stack pointers (R13). El stack es un tipo de mecanismo de memoria que permiet utilizar una porcion de memoria como memoria LIFO (Last In First Out). Los procesadores ARM utilizan la memoria principal del sistema para operar con el stack, tienen una instrucción de PUSH para guardar datos en el stack y una instrucción POP para leer datos del stack. El stack se puede utilizar para:
+-   Guardar temporalmente datos cuando una función que se esta ejecuntando necesita usar registros (en el register bank). Estos valores pueden ser recuperados al final de la función por lo que el programa que llamó a dicha función no perderá los datos.
+-   Pasar información a funciones o subrutinas.
+-   Guardar variables locales.
+-   Guardar el estado del procesador y valores de registros en el caso de excepciones como por ej cuando se produce una interrupción.
+Los Cortex-M usan un modelo de stack llamado "Full descending stack".\
+El llamado a funciones y su retorno esta especificado en el AAPCS, Procedure Call Standard. Alli se especifica que función cumple cada uno de los registros durante el llamado a funciones. Los registros r0 a r3 son utilizados para pasar valores de argumentos a una funcion o para devolver un valor de retorno de una función.
+
+
 11. Describa la secuencia de reset del microprocesador.
 12. ¿Qué entiende por “core peripherals”? ¿Qué diferencia existe entre estos y el resto de los periféricos?
 13. ¿Cómo se implementan las prioridades de las interrupciones? Dé un ejemplo
