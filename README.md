@@ -64,3 +64,15 @@ La MPU permite restringir el acceso a ciertas regiones de memoria. Es un perifer
 solapamientos de las regiones? ¿Qué ocurre con las zonas de memoria no cubiertas por las
 regiones definidas?\
 Como maximo se pueden configurar 8 regiones.
+
+# ISA
+1. ¿Qué son los sufijos y para qué se los utiliza? Dé un ejemplo
+2. ¿Para qué se utiliza el sufijo ‘s’? Dé un ejemplo
+3. ¿Qué utilidad tiene la implementación de instrucciones de aritmética saturada? Dé un
+ejemplo con operaciones con datos de 8 bits.\
+En aplicaciones de DSP es util contar con este tipo de instrucciones. Por ejemplo si se se tiene la salida de un adc de 8bits y se realiza una operacion que produce un overflow, podemos pasar de un valor maximo a un valor minimo. Si por ejemplo estamos hablando de un valor de intensidad de luz en una imagen, podemos pasar de un colo oscuro (255) a uno claro (5) si se produce un overflow. Lo mismo si hablamos de una senal de audio, podemos pasar de un valor de volumen alto a uno bajo a causa de un overflow. Esto no ocurre si usamos logica saturada.
+4. Describa brevemente la interfaz entre assembler y C ¿Cómo se reciben los argumentos
+de las funciones? ¿Cómo se devuelve el resultado? ¿Qué registros deben guardarse en la
+pila antes de ser modificados?
+5. ¿Qué es una instrucción SIMD? ¿En qué se aplican y que ventajas reporta su uso? Dé un
+ejemplo.
