@@ -87,9 +87,10 @@ regiones definidas?\
 Como maximo se pueden configurar 8 regiones.
 
 # ISA
-1. ¿Qué son los sufijos y para qué se los utiliza? Dé un ejemplo
+1. ¿Qué son los sufijos y para qué se los utiliza? Dé un ejemplo\
+- Se usan para utilizar variantes de la misma instruccion. Por ejemplo si a ldr se le agrega el sufijo 'b', se le dice que tiene que trabajar con 8 bits. Si se agrega 'sb' se mantiene tambien el signo.
 2. ¿Para qué se utiliza el sufijo ‘s’? Dé un ejemplo
-- Para que el valor se extienda a 32bits y se mantenga el signo.
+- Para que el valor se extienda a 32bits y se mantenga el signo. Como en el caso anterior, se puede usar 'sb' para mantener el signo en la instruccion ldr.
 3. ¿Qué utilidad tiene la implementación de instrucciones de aritmética saturada? Dé un
 ejemplo con operaciones con datos de 8 bits.\
 En aplicaciones de DSP es util contar con este tipo de instrucciones. Por ejemplo si se se tiene la salida de un adc de 8bits y se realiza una operacion que produce un overflow, podemos pasar de un valor maximo a un valor minimo. Si por ejemplo estamos hablando de un valor de intensidad de luz en una imagen, podemos pasar de un colo oscuro (255) a uno claro (5) si se produce un overflow. Lo mismo si hablamos de una senal de audio, podemos pasar de un valor de volumen alto a uno bajo a causa de un overflow. Esto no ocurre si usamos logica saturada. Podriamos hacer algo similar usando logica condicional, pero eso tendria una menor performance ya que necesitamos mas ciclos de reloj.
