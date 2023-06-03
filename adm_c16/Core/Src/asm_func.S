@@ -5,6 +5,9 @@
 @ Simbolos exportados
 .global asm_svc
 .global asm_sum
+.global asm_escalar32
+.global asm_escalar16
+.global asm_escalar12
 
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
