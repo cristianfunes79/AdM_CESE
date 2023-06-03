@@ -43,3 +43,90 @@
         @ bx lr
         @ push {lr} ... pop {pc}
 
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@   void asm_zeros (uint32_t * vector, uint32_t longitud)
+@
+@ Parametros recibidos:
+@   r0: dirección de memoria de inicio del vector
+@   r1: longitud
+.thumb_func
+    asm_zeros:
+        mov r2, 0         @ r2 = 0
+        asm_zeros_loop:
+		    str r2, [r0]          @ Asigna 0 a la palabra en dirección r0.
+		    add r0, 4             @ Pasa al siguiente elemento del vector.
+		    subs r1, 1            @ Resta 1 a la cantidad de elementos y actualiza flags de estado del procesador. En particular, estamos interesados en el flag Z.
+		    bne asm_zeros_loop    @ La instrucción se ejecuta mientras el resultado de r1 - 1 no sea cero (Z == 0).
+	    bx lr                     @ La instrucción de salto no se ejecutó porque Z == 1, volvemos a quién nos llamó.
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@   void productoEscalar32 (uint32_t * vectorIn, uint32_t * vectorOut, uint32_t longitud, uint32_t escalar)
+@
+@ Parametros recibidos:
+@   r0: dirección de memoria del vectorIN
+@   r1: dirección de memoria del vectorOUT
+@   r2: longitud
+@   r3: escalar
+.thumb_func
+    asm_escalar32:
+        push {r4}			  	@ Contexto de r4 en stack
+        asm_escalar32_loop:
+	        ldr r4, [r0]		  @ Guarda elemento del venctorIN en r4
+	        muls r4, r3, r4		  @ Multiplica r4*r3 donde r3 es el escalar
+		    str r4, [r1]          @ Asigna r4 a la palabra en dirección r1 (vectorOUT).
+		    add r0, 4             @ Pasa a la siguiente palabra/elemento en vectorIN.
+		    add r1, 4			  @ Pasa a la siguiente palabra/elemento en vectorOUT.
+		    subs r2, 1            @ Resta 1 a la cantidad de elementos y actualiza flags de estado del procesador. En particular, estamos interesados en el flag Z.
+		    bne asm_escalar32_loop	@ La instrucción se ejecuta mientras el resultado de r1 - 1 no sea cero (Z == 0).
+	  	pop {r4}			  @ recuperar r4 del stack
+	    bx lr                 @ La instrucción de salto no se ejecutó porque Z == 1
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@   void productoEscalar16 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitud, uint32_t escalar)
+@
+@ Parametros recibidos:
+@   r0: dirección de memoria de inicio del vectorIN
+@   r1: dirección de memoria de inicio del vectorOUT
+@   r2: longitud
+@   r3: escalar
+.thumb_func
+    asm_escalar16:
+        push {r4}			  @ salvar el contexto de r4 en el stack
+        asm_escalar16_loop:
+	        ldrh r4, [r0]		  @ Guarda elemento del venctorIN en r4
+	        muls r4, r3, r4		  @ Multiplica r4*r3 donde r3 es el escalar
+		    strh r4, [r1]         @ Asigna r4 a la palabra en dirección r1 (vectorOUT).
+		    add r0, 4             @ Pasa a la siguiente palabra/elemento en vectorIN.
+		    add r1, 4			  @ Pasa a la siguiente palabra/elemento en vectorOUT.
+		    subs r2, 1            @ Resta 1 a la cantidad de elementos y actualiza flags de estado del procesador.
+		    bne asm_escalar16_loop	@ La instrucción se ejecuta mientras el resultado de r1 - 1 no sea cero (Z == 0).
+	  	pop {r4}			  		@ recuperar r4 del stack
+	    bx lr                 		@ La instrucción de salto no se ejecutó porque Z == 1.
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@   void productoEscalar12 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitud, uint32_t escalar)
+@
+@ Parametros recibidos:
+@   r0: dirección de memoria de inicio del vectorIN
+@   r1: dirección de memoria de inicio del vectorOUT
+@   r2: longitud
+@   r3: escalar
+.thumb_func               @ Se avisa al emsablador que esta es una funcion
+    asm_escalar12:            @ Etiqueta/nombre de la función.
+        push {r4-r5}		  @ salvar el contexto de r4-r5 en el stack
+        mov r5, #4095		  @ Guarda #4095 en r5
+	    asm_escalar12_loop:
+	        ldrh r4, [r0]		  @ Guarda elemento del venctorIN en r4
+	        muls r4, r3, r4		  @ Multiplica r4*r3 donde r3 es el escalar
+	        usat r4, 12, r4		  @ check si saturo a 12 bits
+		    strh r4, [r1]         @ Asigna r4 a la palabra en dirección r1 (vectorOUT).
+		    add r0, 4             @ Pasa a la siguiente palabra/elemento en vectorIN.
+		    add r1, 4			  @ Pasa a la siguiente palabra/elemento en vectorOUT.
+		    subs r2, 1            @ Resta 1 a la cantidad de elementos y actualiza flags de estado del procesador.
+		    bne asm_escalar12_loop	@ La instrucción se ejecuta mientras el resultado de r1 - 1 no sea cero (Z == 0).
+	  	pop {r4-r5}			  		@ recuperar r4 del stack
+	    bx lr                 		@ La instrucción de salto no se ejecutó porque Z == 1, volvemos a quién nos llamó.
+
+
