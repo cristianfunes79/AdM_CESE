@@ -96,6 +96,13 @@ ejemplo con operaciones con datos de 8 bits.\
 En aplicaciones de DSP es util contar con este tipo de instrucciones. Por ejemplo si se se tiene la salida de un adc de 8bits y se realiza una operacion que produce un overflow, podemos pasar de un valor maximo a un valor minimo. Si por ejemplo estamos hablando de un valor de intensidad de luz en una imagen, podemos pasar de un colo oscuro (255) a uno claro (5) si se produce un overflow. Lo mismo si hablamos de una senal de audio, podemos pasar de un valor de volumen alto a uno bajo a causa de un overflow. Esto no ocurre si usamos logica saturada. Podriamos hacer algo similar usando logica condicional, pero eso tendria una menor performance ya que necesitamos mas ciclos de reloj.
 4. Describa brevemente la interfaz entre assembler y C ¿Cómo se reciben los argumentos
 de las funciones? ¿Cómo se devuelve el resultado? ¿Qué registros deben guardarse en la
-pila antes de ser modificados?
+pila antes de ser modificados?\
+Los argumentos se reciben por los registros {r0,r3}.
+En caso de utilizarse registros adicionales a estos dentro de la función se debe guardar su valor en la pila para luego recuperarlos antes de salir de la función.
+Los datos se devuelven por r0 en caso de tener una longitud igual o inferior a 32 bits. En caso de ser superior se utiliza también r1.
 5. ¿Qué es una instrucción SIMD? ¿En qué se aplican y que ventajas reporta su uso? Dé un
-ejemplo.
+ejemplo.\
+El SIMD permite la operación de múltiples datos en simultaneo. Dentro de cada palabra toma fracciones iguales y realiza operaciones con dichas fracciones presentes en la misma palabra como si se tratasen de datos distintos.
+Esto incluye, en caso de overflow, que un dato no modifique al siguiente. De esta forma se puede solicitar a la ALU la realización de diversas operaciones con gran cantidad de datos en una única operación.
+Las instrucciónes SIMD permiten el uso de aritmética saturada y operaciones múltiples de multiple proceso pudiendo involucrar sumas y productos (Multiply accumulate).
+Por ejemplo, QADD8 hace referencia a realizar una operación de suma de elementos con signo de 8 bits aplicando aritmética saturada.
