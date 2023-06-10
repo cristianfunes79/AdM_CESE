@@ -87,10 +87,36 @@ Los Cortex-M usan un modelo de stack llamado "Full descending stack".\
 El llamado a funciones y su retorno esta especificado en el AAPCS, Procedure Call Standard. Alli se especifica que función cumple cada uno de los registros durante el llamado a funciones. Los registros r0 a r3 son utilizados para pasar valores de argumentos a una funcion o para devolver un valor de retorno de una función.
 
 
-11. Describa la secuencia de reset del microprocesador.
-12. ¿Qué entiende por “core peripherals”? ¿Qué diferencia existe entre estos y el resto de los periféricos?
+11. Describa la secuencia de reset del microprocesador.\
+En un microcontrolador Cortex-M, puede haber 3 tipos de reset:
+- Power on reset: se resetea todo en el microcontrolador. Esto incluye el procesador y su bloque de debug y periféricos.
+- Sytem reset: se resetea solamente el procesador y los periféricos, pero no el bloque de debug del procesador.
+- Processor reset: se resetea el procesador solamente.
+Luego de un reset y antes de que el procesador comience a ejecutar código, el Cortex-M lee las primeras 2 palabras de la memoria. El comienzo de la memoria contiene la tabla de vectores, y los primeros 2 valores de la tabla de vectores son el valor inicial del MSP y el vector de reset, que es la dirección inicial del reset handler. Luego de que estas 2 palabras son leídas por el procesador, el mismo setea el MSP y el PC con estos valores.
+El seteo del MSP es necesario porque algunas excepciones como la NMI o el HardFault se pueden producir apenas se salga del reset, y el MSP va a ser necesario en ese caso para pushear algunos datos del estado del procesador antes de atender la excepción.
+
+12. ¿Qué entiende por “core peripherals”? ¿Qué diferencia existe entre estos y el resto de los periféricos?\
+Los core peripherals son los periféricos propios del procesador y son definidos por ARM. Los "device peripherals" son periféricos del SoC y dependen de cada fabricante (múltiples dispositivos de un mismo fabricante pueden o no tener los mismos periféricos).
+
 13. ¿Cómo se implementan las prioridades de las interrupciones? Dé un ejemplo
-14. ¿Qué es el CMSIS? ¿Qué función cumple? ¿Quién lo provee? ¿Qué ventajas aporta?
+14. ¿Qué es el CMSIS? ¿Qué función cumple? ¿Quién lo provee? ¿Qué ventajas aporta?\
+CMSIS fue desarrollada por ARM para permitir que los fabricantes de microcontroladores y de software utilicen una infraestructura de software consistente para desarrollar soluciones de software para los Cortex-M. Actualmente el mercado de los mircocontroladores Cortex-M abarca:
+- Más de 15 vendedores de microcontroladores Cortex-M, con algunos venderores que proveen FPGA y ASICs basados en Cortex-M.
+- Más de 10 proveedores de toolchains.
+- Más de 30 SO embebidos.
+- Middleware para stacks, protocolos de comunicación, etc.\
+Con este gran ecosistema se hace necesario contar con alguna forma de estandarización de la infraestructura de software, para mejorar la compatibilidad del software entre los distintos fabricantes y herramientas. También es importante mejorar la reusabilidad del software para reducir los tiempos de desarrollo y disminuir los riesgos de fallas. Por ejemplo, un desarrollo de software embebido puede incluir codigo de distintas fuentes:
+- Software desarrollado por "in house" developers.
+- Software reutilizado de otros proyectos.
+- Device drivers desarrollados por los vendedores del microcontrolador.
+- SO embebido.
+- Otras bibliotecas de terceros.\
+En todos estos escenarios la interoperabilidad de los distintos componentes de software se vuelve crítca. Es por todo esto que ARM trabajó con distintos vendedores de microcontroladores, desarrolladores de herramientas y de soluciones de software para desarrollar CMSIS, un framework que abarca la mayoría de los procesadores Cortex-M. CMSIS es un proyecto que continúa evolucionando y que consta actualmente de varios proyectos:
+- CMSIS Core, to access features of Cortex-M processors.
+- CMSIS DSP Library, to create DSP applications easily.
+- CMSIS SVD, an XML based file format to describe peripheral set in microcontroller products.
+- CMSIS RTOS, an API specification for embedded OS.
+- CMSIS DAP, a reference design for a debug interface adaptor.
 15. Cuando ocurre una interrupción, asumiendo que está habilitada ¿Cómo opera el microprocesador para atender a la subrutina correspondiente? Explique con un ejemplo.
 16. ¿Cómo cambia la operación de stacking al utilizar la unidad de punto flotante?
 17. Explique las características avanzadas de atención a interrupciones: tail chaining y late arrival.
