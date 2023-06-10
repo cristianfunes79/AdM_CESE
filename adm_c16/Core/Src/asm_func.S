@@ -11,6 +11,8 @@
 .global asm_filtroVentana10
 .global asm_pack16
 .global asm_max
+.global asm_downsampleM
+.global asm_invertir
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @ Prototipo en "C":
@@ -223,3 +225,28 @@
 	  	mov r0, r6			  @ Retorno valor de salida en r0
 	  	pop {r4-r7}			  @ recuperar r4-r7 del stack
 	    bx lr                 @ La instrucción de salto no se ejecutó porque Z == 1, volvemos a quién nos llamó.
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@   void downsampleM (int32_t * vectorIn, int32_t * vectorOut, uint32_t longitud, uint32_t N)
+@
+@ Parametros recibidos:
+@   r0: dirección de memoria de inicio del vector IN
+@   r1: direccion de memoria de inicio del vector Out
+@	r2: longitud del vector
+@	r3: N
+.thumb_func
+	asm_downsampleM:
+		push {}
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@   void invertir (uint16_t * vector, uint32_t longitud)
+@
+@ Parametros recibidos:
+@   r0: dirección de memoria de inicio del vector
+@	r1: longitud del vector
+.thumb_func
+	asm_invertir:
+

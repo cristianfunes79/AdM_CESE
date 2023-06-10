@@ -173,7 +173,12 @@ void pack32to16 (int32_t * vectorIn, int16_t *vectorOut, uint32_t longitud)
 	}
 }
 
-/* Ejercicio 7*/
+/* Ejercicio 7
+ * @brief Realizar una función que reciba un vector de números signados de 32 bits y devuelva la posición del máximo del vector.
+ * @param vectorIn	Puntero donde comienza el vector de entrada
+ * @param longitud	Longitud del vector de entrada
+ * @retval posicion del valor maximo
+ * */
 int32_t max (int32_t * vectorIn, uint32_t longitud)
 {
 	int32_t max = -1000;
@@ -187,6 +192,49 @@ int32_t max (int32_t * vectorIn, uint32_t longitud)
 		}
 	}
 	return pos_max;
+}
+
+/* Ejercicio 8
+ * @brief Realizar una función que reciba un vector de muestras signadas de 32 bits y lo decime descartando una cada N muestras.
+ * @param vectorIn	Vector con los valores de entrada.
+ * @param vectorOut	Vector con los valores de salida.
+ * @param longitud	Longitud del vector.
+ * @param N	Numero de muestras de downsample.
+ * @retval None
+ * */
+void downsampleM (int32_t * vectorIn, int32_t * vectorOut, uint32_t longitud, uint32_t N)
+{
+	if (vectorIn == 0 || vectorOut == 0)
+		return;
+
+	uint32_t j=0;
+
+	vectorOut[j++] = vectorIn[0]; //Asigno el primer elemento para que la condicion i%N != 0 no se evalue con i=0
+
+	for (uint32_t i=1; i<longitud; ++i)
+	{
+		if (i%N != 0)
+			vectorOut[j++] = vectorIn[i];
+	}
+}
+
+/* Ejercicio 9
+ * @brief Realizar una función que reciba un vector de muestras no signadas de 16 bits e invierta su orden.
+ * @param vector Vector de entrada/salida
+ * @param longitud	Longitud del vector.
+ * @retval None
+ * */
+void invertir (uint16_t * vector, uint32_t longitud)
+{
+	if (vector == 0)
+		return;
+
+	for (uint32_t i=0; i<longitud/2; ++i)
+	{
+		uint16_t aux = vector[i];
+		vector[i] = vector[longitud-i];
+		vector[longitud-i] = aux;
+	}
 }
 
 /* USER CODE END PFP */
