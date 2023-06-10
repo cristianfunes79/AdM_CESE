@@ -83,6 +83,7 @@ void zeros(uint32_t* vector, uint32_t longitud)
  * @param 	vectorOut Array donde se almacena el resultado
  * @param 	longitud Longitud del array
  * @param 	escalar Valor escalar por el que se va a multiplicar vectorIn
+ * @retval	None
  */
 void productoEscalar32(uint32_t* vectorIn, uint32_t* vectorOut, uint32_t longitud, uint32_t escalar)
 {
@@ -98,6 +99,7 @@ void productoEscalar32(uint32_t* vectorIn, uint32_t* vectorOut, uint32_t longitu
  * @param 	vectorOut Array donde se almacena el resultado
  * @param 	longitud Longitud del array
  * @param 	escalar Valor escalar por el que se va a multiplicar vectorIn
+ * @retval  None
  */
 void productoEscalar16(uint16_t* vectorIn, uint16_t* vectorOut, uint32_t longitud, uint16_t escalar)
 {
@@ -122,6 +124,70 @@ void productoEscalar12(uint16_t* vectorIn, uint16_t* vectorOut, uint32_t longitu
 	}
 }
 
+/* Ejercicio 5.
+ * @brief  Realiza un filtro de ventana realizando el promedio de 5 valores a izquierda y 5 a derecha de cada valor central
+ * @param  Puntero a donde comienza el vector de entrada
+ * @param  Puntero a donde comienza el vector de salida
+ * @param  Longitud del vector
+ * @retval None
+ */
+void filtroVentana10(uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitudVectorIn)
+{
+	if(vectorIn != 0 && vectorOut != 0)
+	{
+		int num_muestras_izq = 0;
+		int num_muestras_der = 0;
+		for(int i = 0; i<longitudVectorIn; i++)
+		{
+			num_muestras_izq = i<6 ? i : 5;
+			num_muestras_der = i<((int)longitudVectorIn-5) ? 5 : ((int)longitudVectorIn-(i+1));
+			*vectorOut = 0;
+			for(int j=1;j<=num_muestras_izq;j++)
+			{
+				*vectorOut += *(vectorIn - j);
+			}
+			for(int j=1;j<=num_muestras_der;j++)
+			{
+				*vectorOut += *(vectorIn + j);
+			}
+			*vectorOut = *vectorOut/(num_muestras_izq+num_muestras_der);
+			vectorIn++;
+			vectorOut++;
+		}
+	}
+}
+
+/* Ejercicio 6
+ * @brief  Realizar una función que reciba un vector de números signados de 32 bits y los “empaquete” en otro vector de 16 bits. La función deberá adecuar los valores de entrada a la nueva precisión.
+ * @param  Puntero a donde comienza el vector de entrada
+ * @param  Puntero a donde comienza el vector de salida
+ * @param  Longitud del vector
+ * @retval None
+ */
+void pack32to16 (int32_t * vectorIn, int16_t *vectorOut, uint32_t longitud)
+{
+	int i = 0;
+	for (i = 0; i < longitud; i++)
+	{
+		*(vectorOut + i) = (uint16_t) (((*(vectorIn + i)) >> 16) & 0xff);
+	}
+}
+
+/* Ejercicio 7*/
+int32_t max (int32_t * vectorIn, uint32_t longitud)
+{
+	int32_t max = -1000;
+	int32_t pos_max = 0;
+	for (int i = 0; i < longitud; i++)
+	{
+		if (vectorIn[i]>max)
+		{
+			max = vectorIn[i];
+			pos_max=i+1;
+		}
+	}
+	return pos_max;
+}
 
 /* USER CODE END PFP */
 
@@ -231,6 +297,12 @@ int main(void)
   for (uint32_t i=0; i<10; ++i) data_in[i] = i;
 
   productoEscalar32(data_in, data_out, 10, 2);
+  /* Test ejercicio 2 ASM*/
+  for (uint32_t i=0; i<10; ++i) data_in[i] = i;
+  for (uint32_t i=0; i<10; ++i) data_out[i] = 0;
+
+  asm_escalar32(data_in, data_out, 10, 2);
+
 
   /* Test ejercicio 3 */
   uint16_t data_in16[10]={0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};

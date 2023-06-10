@@ -8,7 +8,9 @@
 .global asm_escalar32
 .global asm_escalar16
 .global asm_escalar12
-
+.global asm_filtroVentana10
+.global asm_pack16
+.global asm_max
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @ Prototipo en "C":
@@ -133,3 +135,91 @@
 	    bx lr                 		@ La instrucción de salto no se ejecutó porque Z == 1, volvemos a quién nos llamó.
 
 
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@   void filtroVentana10 (uint16_t * vectorIn, uint16_t * vectorOut, uint32_t longitud)
+@
+@ Parametros recibidos:
+@   r0: dirección de memoria de inicio del vector IN
+@   r1: dirección de memoria de inicio del vector OUT
+@   r2: longitud
+.thumb_func               @ Se avisa al emsablador que esta es una funcion
+    asm_filtroVentana10:            @ Etiqueta/nombre de la función.
+        push {r3-r8}			@ salvar el contexto de r3-r8 en el stack
+        mov r3, r0				@ Copia la direccion de memoria del vector IN en r3
+        lsl r4, r2, 2			@ Multiplica por 2 la longitud (desplaza a la izq)
+        asm_filtroVentana10_bucle:  @ Etiqueta de comienzo de bucle.
+	        mov r5, #10			@ Asigna #10 a r5
+	        	bucle2:
+		        adds r6, r3, r5
+		        subs r6,r4,r6   @ En r6 guarda la posicion de memoria del final de la ventana, checkea que este en rango y actualiza flags
+		      	ldr r6, [r0]	@ carga el elemento del vector en r6
+		        it pl			@ Si la resta dio positivo
+		        addpl r7, r6 	@ Suma cero a r7
+
+		        subs r6, r3, r5
+		        subs r6, r3, r6 @ En r6 guarda la posicion de memoria del comienzo de la ventana, checkea que este en rango y actualiza flags
+		        ldr r6, [r0]    @ carga el elemento del vector en r6
+		        it pl           @ Si la resta dio positivo
+		        addpl r7,r6     @ Suma cero a r7
+		        subs r5,1
+		        bne bucle2			@sale del bucle
+		    mov r8, #10
+		    udiv r7,r7,r8			@calcula el proemdio
+		    strh r7, [r1]			@Carga en el vector de salida
+		    add r0, 2             @ Pasa a la siguiente palabra/elemento en vector IN.
+		    add r1, 2			  @ Pasa a la siguiente palabra/elemento en vector OUT.
+		    subs r2, 1            @ Resta 1 a la cantidad de elementos y actualiza flags de estado del procesador. En particular, estamos interesados en el flag Z.
+		    bne asm_filtroVentana10_bucle@ La instrucción se ejecuta mientras el resultado de r1 - 1 no sea cero (Z == 0).
+	  	pop {r3-r8}			  @ recuperar r3-r8 del stack
+	    bx lr                 @ La instrucción de salto no se ejecutó porque Z == 1, volvemos a quién nos llamó.
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@   void pack32to16 (int32_t * vectorIn, int16_t *vectorOut, uint32_t longitud)
+@
+@ Parametros recibidos:
+@   r0: dirección de memoria de inicio del vector IN
+@   r1: dirección de memoria de inicio del vector OUT
+@   r2: longitud
+.thumb_func               @ Se avisa al emsablador que esta es una funcion
+    asm_pack16:            @ Etiqueta/nombre de la función.
+        push {r4-r5}	   @ salvar el contexto de r4-r5 en el stack
+        asm_pack16_bucle:  @ Etiqueta de comienzo de bucle.
+	        ldr r4, [r0]		  @ Guarda elemento del venctor IN en r4
+	        lsr r4, 4		  	  @ desplazo 4 a la derecha (parte alta)
+	        mov r5,#0xffff		  @ guardo todos 1
+	        and r5,r4,r5		  @ hago and
+		    strh r5, [r1]         @ Asigna r5 a la palabra en dirección r1 (vector OUT).
+		    add r0, 4             @ Pasa a la siguiente palabra/elemento en vector IN.
+		    add r1, 2			  @ Pasa a la siguiente palabra/elemento en vector OUT.
+		    subs r2, 1            @ Resta 1 a la cantidad de elementos y actualiza flags de estado del procesador. En particular, estamos interesados en el flag Z.
+		    bne asm_pack16_bucle  @ La instrucción se ejecuta mientras el resultado de r1 - 1 no sea cero (Z == 0).
+	  	pop {r4-r5}			  @ recuperar r4-r5 del stack
+	    bx lr                 @ La instrucción de salto no se ejecutó porque Z == 1, volvemos a quién nos llamó.
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@   int32_t max (int32_t * vectorIn, uint32_t longitud)
+@
+@ Parametros recibidos:
+@   r0: dirección de memoria de inicio del vector IN
+@   r1: longitud
+.thumb_func               @ Se avisa al emsablador que esta es una funcion
+    asm_max:              @ Etiqueta/nombre de la función.
+        push {r4-r7}	  @ salvar el contexto de r4-r7 en el stack
+        mov r5, #0
+        mov r7, r1		  @ Copio longitud en r7
+        asm_max_bucle:    @ Etiqueta de comienzo de bucle.
+	        ldr r4, [r0]	  @ Guarda elemento del venctor IN en r4
+	        subs r5, r4       @ Check si el elemento actual es mayor que el anterior
+			ITT MI
+			movmi r5, r4
+			subsmi r6, r1, r7	@Obtengo el indice del elemento mayor
+
+		    add r0, 4             @ Pasa a la siguiente palabra/elemento en vector IN.
+		    subs r1, 1            @ Resta 1 a la cantidad de elementos y actualiza flags de estado del procesador. En particular, estamos interesados en el flag Z.
+		    bne asm_max_bucle     @ La instrucción se ejecuta mientras el resultado de r1 - 1 no sea cero (Z == 0).
+	  	mov r0, r6			  @ Retorno valor de salida en r0
+	  	pop {r4-r7}			  @ recuperar r4-r7 del stack
+	    bx lr                 @ La instrucción de salto no se ejecutó porque Z == 1, volvemos a quién nos llamó.
