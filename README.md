@@ -49,7 +49,23 @@ En sistemas con un SO o RTOS, los exception handlers usan el MSP, mientras que l
 
 6. Describa los diferentes modos de privilegio y operación del Cortex M, sus relaciones y
 como se conmuta de uno al otro. Describa un ejemplo en el que se pasa del modo
-privilegiado a no priviligiado y nuevamente a privilegiado.
+privilegiado a no priviligiado y nuevamente a privilegiado.\
+Los Cortex-M tienen 2 estados de operación y 2 modos. Además, los procesadores pueden tener niveles de acceso privilegiado y no provilegiado. El nivel de acceso privilegiado puede acceder a todos los recursos del procesador, mientras que el no privilegiado tiene algunas zonas de memoria no accesibles, y algunas operaciones no disponibles. El nivel de acceso no privilegiado no está disponible en los Cortex-M0 y es opcional en los Cortex-M0+.
+* Estados de operación: 
+    - Estado de Debug: Cuando el procesador es detenido (por ejemplo por un debuggger, o porque alcanza un breakpoint), entra en estado de Debug y deja de ejecutar instrucciones.
+    - Estado Thumb: Si el procesador está ejecutando código de programa (instrucciones Thumb), está en estado Thumb. A diferencia de otros procesadores ARM, no hay estado ARM porque los Cortex-M no soportan el set de insrucciones ARM.
+* Modos de operación:
+    - Modo Handler: Cuando se ejecuta un exception handler tal como una ISR. Cuando el procesador está en handler mode, siempre tiene nivel de acceso privilegiado.
+    - Modo Thread: Cuando se ejecuta código de programa de aplicación, el procesador puede estar con nivel de acceso privilegiado o no privilegiado. Esto se controla mediante un registro especial llamado CONTROL (más específicamente, el bit0 [nPRIV]). El programa puede cambiar de nivel de acceso privilegiado a no privilegiado, pero no puede pasar de no privilegiado a privilegiado. Si es necesario, el procesador tiene que usar un mecanismo de excepciones para manejar el cambio.
+Por defecto, los procesadores Cortex-M arrancan en modo Thread privilegiado y en estado Thumb. 
+
+* Ejemplo:
+    - Luego de un reset, se ejecuta código de programa en modo Thread privilegiado.
+    - Se realiza un cambio a modo Thread no privilegiado escribiendo en 1 el bit0 del registro CONTROL. Entonces: CONTROL:nPRIV = 1
+    - Se continua ejecutando el programa en modo Thread no privilegiado.
+    - Se produce una excepción, lo que produce un cambio a modo Handler privilegiado.
+    - Una vez que se atiende la excepcion, se retorna a modo Thread no privilegiado.
+
 7. ¿Qué se entiende por modelo de registros ortogonal? Dé un ejemplo
 Los registros son ortogonales cuando cualquier instrucción aplicable a un registro es igualmente aplicable a otro registro. En los ARMv7, los registros r0 a r12 son ortogonales. 
     - Ej: MOV R4, R0; Copy value from R0 to R4
