@@ -237,6 +237,29 @@ void invertir (uint16_t * vector, uint32_t longitud)
 	}
 }
 
+/* Ejercicio 10
+ * @brief Realizar una función que recibe un vector de 4096 valores de 16 bits (signados), que corresponden a muestras de audio tomadas
+ * a una tasa de muestreo de 44.100 muestras/s.
+ * La función debe introducir un “eco” de la mitad de la amplitud de la muestra original a los 20ms de comenzada
+ * la grabación.
+ * @param vectorIn	Direccion de la primera posicion de memoria del vector de entrada
+ * @retval None
+ */
+void eco(int16_t* vectorIn)
+{
+	int16_t vinCopy[4096];
+
+	for (uint16_t i=0; i<4096; ++i)
+	{
+		vinCopy[i] = vinCopy[i]/2; // Guardo una copia de la senal de entrada/2
+	}
+
+	for (uint16_t i=882; i<4096; ++i)
+	{
+		vectorIn[i] = vectorIn[i] + vinCopy[i-882];
+	}
+}
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -296,7 +319,7 @@ static void PrivilegiosSVC (void)
     // Fin del ejemplo de SVC
 }
 /* USER CODE END 0 */
-
+static uint16_t inv[10] = {0,1,2,3,4,5,6,7,8,9};
 /**
   * @brief  The application entry point.
   * @retval int
@@ -331,6 +354,20 @@ int main(void)
   /* USER CODE BEGIN 2 */
   PrivilegiosSVC ();
 
+  int32_t vectorDSIn[10], vectorDSOut[10];
+
+  for(int32_t i=0; i<10; ++i)
+  {
+    vectorDSIn[i] = i;
+    vectorDSOut[i] = 0;
+  }
+
+  asm_downsampleM(vectorDSIn, vectorDSOut, 10, 0);
+
+
+
+  asm_invertir(inv, 10);
+
   const uint32_t Resultado = asm_sum (5, 3);
   (void) Resultado; // para evitar warning durante la compilacion
 
@@ -364,6 +401,7 @@ int main(void)
   for (uint32_t i=0; i<10; ++i) data_in16[i] = i;
 
   productoEscalar12(data_in16, data_out16, 10, 2);
+
 
   /* USER CODE END 2 */
 

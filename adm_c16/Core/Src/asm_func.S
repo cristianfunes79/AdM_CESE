@@ -236,9 +236,53 @@
 @   r1: direccion de memoria de inicio del vector Out
 @	r2: longitud del vector
 @	r3: N
+
 .thumb_func
 	asm_downsampleM:
-		push {}
+		push {r4-r5}		@salvo el contexto
+		mov r4, r3			@ r4 = N
+
+		@ valido los argumentos de entrada
+		cmp r0, #0	
+		itt eq
+		popeq {r4-r5}
+		bxeq lr
+
+		cmp r1, #0	
+		itt eq
+		popeq {r4-r5}
+		bxeq lr
+
+		cmp r2, #0	
+		itt eq
+		popeq {r4-r5}
+		bxeq lr
+
+		cmp r3, #0	
+		itt eq
+		popeq {r4-r5}
+		bxeq lr
+
+		asm_compare_loop:
+
+			cmp r4, #0		@comparo el valor de N para verificar si se dejo pasar la cantidad de datos
+			ittt eq			@if (r4 == 0) then -> reset r4=N, i++, longitud --
+			moveq r4, r3
+			addeq r0, #4
+			subeq r2, #1
+
+			beq asm_compare_loop
+
+			ldr r5, [r0]	@copio Vin[i] en Vout[j]
+			str r5, [r1]
+			add r0, #4		@i++
+			add r1, #4		@j++
+			sub r4, #1		@N--
+			sub r2, #1		@longitud--
+			cmp r2, #0		@ if (longitud == 0) salgo del loop 
+			bne asm_compare_loop
+		pop {r4-r5}
+		bx lr
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @ Prototipo en "C":
@@ -247,6 +291,28 @@
 @ Parametros recibidos:
 @   r0: dirección de memoria de inicio del vector
 @	r1: longitud del vector
+@   r2: &vector[longitud-1]
+@   r3: aux
 .thumb_func
 	asm_invertir:
+
+		push {r4-r5}
+
+		mov r2, #2 @calculo la direccion del ultimo valor del vector
+		mul r2, r1
+		add r2, r0
+		sub r2, #2
+		lsr r1, #1
+
+		invertir_loop:
+			ldrh r3, [r0] @aux1 = vector[i]
+			ldrh r4, [r2] @aux2 = vector[longitud-1]
+			strh r4, [r0], #2 @vector[i] = aux2
+			strh r3, [r2], -2	@vector[i+1]
+			subs r1, #1			@longitud--
+			bne invertir_loop
+
+		pop {r4-r5}
+		bx lr
+
 
