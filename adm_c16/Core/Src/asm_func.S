@@ -4,6 +4,7 @@
 
 @ Simbolos exportados
 .global asm_svc
+.global asm_zeros
 .global asm_sum
 .global asm_escalar32
 .global asm_escalar16
@@ -13,6 +14,7 @@
 .global asm_max
 .global asm_downsampleM
 .global asm_invertir
+.global asm_eco
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 @ Prototipo en "C":
@@ -48,7 +50,7 @@
         @ Otras alternativas para el retorno
         @ mov pc,lr
         @ bx lr
-        @ push {lr} ... pop {pc}
+        @ push c{lr} ... pop {pc}
 
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -315,4 +317,43 @@
 		pop {r4-r5}
 		bx lr
 
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@ Prototipo en "C":
+@	void eco(int16_t* vectorIn, int16_t* vectorOut)
+@
+@ Parametros recibidos:
+@   r0: dirección de memoria de inicio del vector de Entrada
+@   r1: dirección de memoria de inicio del vector de Salida
+@	r2: Longitud
+@	r3: Registro para el guardado de los elementos del vector
+@	r4: Indice para recorrer el vector de entrada
+@	r5: Auxliar para la division signada y para guardar el valor
+@	r6: Registro para guardar la primer posicion del vector de entrada
+.thumb_func
+	asm_eco:
+		push {r4-r6}				@ Salvo el contexto
+		mov r6, r0					@ Guardo el la posicion de memoria del inicio del vector de entrada
+		mov r5, #882				@ Muevo el valor #882 al registro r5
+		mov r4, #0					@ Muevo el valor #0 al registro r4
+		asm_eco_primerbucle:
+			ldr r3, [r0], #4		@ Cargo de memoria los 2 datos signados de 16 bits de la posicion de r0 al registro r3 y le sumo 4 a r0
+			str r3, [r1], #4		@ Guardo en memoria los 2 datos signados de 16 bits del registro r3 en la posicion de memoria apuntada por r1 y le sumo 4 a r1
+			add r4, #2				@ Sumo 2 a r4
+			cmp r4, r5				@ Comparo r4 con r5 y actualizo los flags del procesador
+			bne asm_eco_primerbucle	@ Si la anterior operacion no dio 0 salto a la etiqueta asm_eco_primerbucle
+		mov r5, #0					@ Muevo el valor #0 a r5
+		asm_eco_segundobucle:
+			ldr r3, [r6], #4		@ Cargo en r3 los 2 datos signados apuntados en r6 y le sumo a r6 el valor #4
+			shadd16 r3, r3, r5		@ Hago la suma signada de 2 numeros de 16 bits entre r3 y r5 y divido los resultados por 2. Guardo el resultado en r3
+			ldr r5, [r0], #4		@ Cargo en r5 los 2 datos signados apuntados en r0 y le sumo a r0 el valor #4
+			sadd16 r3, r3, r5		@ Hago la suma signada de 2 numeros de 16 bits entre r3 y r5 y guardo el valor en r3
+			mov r5, #0				@ Muevo el valor #0 a r5
+			add r4, #2				@ Sumo 2 a r4
+			str r3, [r1], #4		@ Guardo en memorio los 2 datos signados de 16 bits de r3 en la posicion de r1 y le sumo 4 a r1
+			cmp r4, r2				@ Comparo r4 y r2 y actualizo los flags del procesador
+			bne asm_eco_segundobucle@ si la anterior operacion no dio 0 salto a la etiqueta asm_eco_segundobucle
+		pop {r4-r6}					@ Retiro del stack los valores anterior de r4, r5 y r6
+		bx lr						@ Vuelvo al programa principal
+		
 

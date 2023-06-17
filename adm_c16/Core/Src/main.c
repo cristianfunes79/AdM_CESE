@@ -249,15 +249,18 @@ void eco(int16_t* vectorIn)
 {
 	int16_t vinCopy[4096];
 
-	for (uint16_t i=0; i<4096; ++i)
+	for (int16_t i=0; i<4096; ++i)
 	{
-		vinCopy[i] = vinCopy[i]/2; // Guardo una copia de la senal de entrada/2
+		vinCopy[i] = vectorIn[i]/2; // Guardo una copia de la senal de entrada/2
 	}
 
 	for (uint16_t i=882; i<4096; ++i)
 	{
 		vectorIn[i] = vectorIn[i] + vinCopy[i-882];
 	}
+
+	int a;
+	(void)a;
 }
 
 /* USER CODE END PFP */
@@ -319,7 +322,6 @@ static void PrivilegiosSVC (void)
     // Fin del ejemplo de SVC
 }
 /* USER CODE END 0 */
-static uint16_t inv[10] = {0,1,2,3,4,5,6,7,8,9};
 /**
   * @brief  The application entry point.
   * @retval int
@@ -334,6 +336,10 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
+
+  /**/
+  // Activa contador de ciclos (iniciar una sola vez)
+  DWT->CTRL |= 1 << DWT_CTRL_CYCCNTENA_Pos;
 
   /* USER CODE BEGIN Init */
 
@@ -354,19 +360,216 @@ int main(void)
   /* USER CODE BEGIN 2 */
   PrivilegiosSVC ();
 
-  int32_t vectorDSIn[10], vectorDSOut[10];
-
-  for(int32_t i=0; i<10; ++i)
-  {
-    vectorDSIn[i] = i;
-    vectorDSOut[i] = 0;
+  // =======================================================
+  // Ejercicio 1: 	-O0  	C 1242 ciclos, ASM 264 ciclos
+  //				-Ofast 	C 1417 ciclos, ASM 261 ciclos
+  { //C
+	  uint32_t vector[50];
+	  for(uint32_t i=0; i<50; ++i) vector[i] = i;
+	  DWT->CYCCNT = 0;
+	  zeros(vector, 50);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos; //Para evitar warning de unused
+  }
+  { //ASM
+	  uint32_t vector[50];
+	  for(uint32_t i=0; i<50; ++i) vector[i] = i;
+	  DWT->CYCCNT = 0;
+	  asm_zeros(vector, 50);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
   }
 
-  asm_downsampleM(vectorDSIn, vectorDSOut, 10, 0);
+  // =========================================================
+  // Ejercicio 2: 	-O0		C 1902 ciclos, ASM 519 ciclos
+  //				-Ofast 	C  452 ciclos, ASM 512 ciclos
+  {
+	  uint32_t vectorIn[50], vectorOut[50];
+	  for( uint32_t i=0; i<50; ++i) vectorIn[i] = i;
+	  DWT->CYCCNT = 0;
+	  productoEscalar32(vectorIn, vectorOut, 50, 2);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+  {
+	  uint32_t vectorIn[50], vectorOut[50];
+	  for( uint32_t i=0; i<50; ++i) vectorIn[i] = i;
+	  DWT->CYCCNT = 0;
+	  asm_escalar32(vectorIn, vectorOut, 50, 2);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
 
+  // =========================================================
+  // Ejercicio 3: 	-O0		C 1944 ciclos, ASM 522 ciclos
+  //				-Ofast 	C  455 ciclos, ASM 512 ciclos
+  {
+	  uint16_t vectorIn[50], vectorOut[50];
+	  for( uint16_t i=0; i<50; ++i) vectorIn[i] = i;
+	  DWT->CYCCNT = 0;
+	  productoEscalar16(vectorIn, vectorOut, 50, 2);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+  {
+	  uint16_t vectorIn[50], vectorOut[50];
+	  for( uint16_t i=0; i<50; ++i) vectorIn[i] = i;
+	  DWT->CYCCNT = 0;
+	  asm_escalar16(vectorIn, vectorOut, 50, 2);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
 
+  // =========================================================
+  // Ejercicio 4: C 2198 ciclos, ASM 571 ciclos
+  {
+	  uint16_t vectorIn[50], vectorOut[50];
+	  for (uint16_t i=0; i<50; ++i) vectorIn[i] = i;
+	  DWT->CYCCNT = 0;
+	  productoEscalar12(vectorIn, vectorOut, 50, 4);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+  {
+	  uint16_t vectorIn[50], vectorOut[50];
+	  for (uint16_t i=0; i<50; ++i) vectorIn[i] = i;
+	  DWT->CYCCNT = 0;
+	  asm_escalar12(vectorIn, vectorOut, 50, 4);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
 
-  asm_invertir(inv, 10);
+  // =========================================================
+  // Ejercicio 5: C 21956 ciclos, ASM 9918 ciclos
+  {
+	  uint16_t vectorIn[50], vectorOut[50];
+	  for (uint16_t i=0; i<50; ++i) vectorIn[i] = i;
+	  DWT->CYCCNT = 0;
+	  filtroVentana10(vectorIn, vectorOut, 50);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+  {
+	  uint16_t vectorIn[50], vectorOut[50];
+	  for (uint16_t i=0; i<50; ++i) vectorIn[i] = i;
+	  DWT->CYCCNT = 0;
+	  asm_filtroVentana10(vectorIn, vectorOut, 50);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+
+  // =========================================================
+  // Ejercicio 6: C 1617 ciclos, ASM 544 ciclos
+  {
+	  int32_t vectorIn[40];
+	  int16_t vectorOut[40];
+	  DWT->CYCCNT = 0;
+	  pack32to16(vectorIn, vectorOut, 40);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+  {
+	  int32_t vectorIn[40];
+	  int16_t vectorOut[40];
+	  DWT->CYCCNT = 0;
+	  asm_pack16(vectorIn, vectorOut, 40);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+
+  // =========================================================
+  // Ejercicio 7: C 418 ciclos, ASM 130 ciclos
+  {
+	  int32_t vectorIn[10] = {0,44,1,25,177,3,2,1,1234,3};
+	  int32_t pos;
+	  DWT->CYCCNT = 0;
+	  pos = max (vectorIn, 10);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+	  (void) pos;
+  }
+  {
+	  int32_t vectorIn[10] = {0,44,1,25,177,3,2,1,1234,3};
+	  int32_t pos;
+	  DWT->CYCCNT = 0;
+	  pos = asm_max (vectorIn, 10);
+	  const volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+	  (void) pos;
+  }
+
+  // =========================================================
+  // Ejercicio 8: C 450 ciclos, ASM 186 ciclos
+  {
+	  int32_t vectorDSIn[10], vectorDSOut[10];
+
+	  for(int32_t i=0; i<10; ++i)
+	  {
+	    vectorDSIn[i] = i;
+	    vectorDSOut[i] = 0;
+	  }
+
+	  DWT->CYCCNT = 0;
+	  downsampleM(vectorDSIn, vectorDSOut, 10, 2);
+	  volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+  {
+	  int32_t vectorDSIn[10], vectorDSOut[10];
+
+	  for(int32_t i=0; i<10; ++i)
+	  {
+	    vectorDSIn[i] = i;
+	    vectorDSOut[i] = 0;
+	  }
+
+	  DWT->CYCCNT = 0;
+	  asm_downsampleM(vectorDSIn, vectorDSOut, 10, 2);
+	  volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+
+  // =========================================================
+  // Ejercicio 9: C 361 ciclos, ASM 67 ciclos
+  {
+	  uint16_t inv[10] = {0,1,2,3,4,5,6,7,8,9};
+
+	  DWT->CYCCNT = 0;
+	  invertir(inv, 10);
+	  volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+  {
+	  uint16_t inv[10] = {0,1,2,3,4,5,6,7,8,9};
+
+	  DWT->CYCCNT = 0;
+	  asm_invertir(inv, 10);
+	  volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+
+  // =========================================================
+  // Ejercicio 10: 	-O0		C 450454 ciclos, ASM  29334 ciclos
+  //				-Ofast 	C  73153 ciclos, ASM  ciclos
+  {
+	  int16_t vectorIn[4096];
+	  for(int16_t i=0; i<4096; ++i) vectorIn[i] = i;
+
+	  DWT->CYCCNT = 0;
+	  eco(vectorIn);
+	  volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+  {
+	  int16_t vectorIn[4096], vectorOut[4096];
+	  for(int16_t i=0; i<4096; ++i) vectorIn[i] = i;
+
+	  DWT->CYCCNT = 0;
+	  asm_eco(vectorIn, vectorOut, 4096);
+	  volatile uint32_t Ciclos = DWT->CYCCNT;
+	  (void) Ciclos;
+  }
+
 
   const uint32_t Resultado = asm_sum (5, 3);
   (void) Resultado; // para evitar warning durante la compilacion
