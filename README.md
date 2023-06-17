@@ -146,6 +146,8 @@ PendSV es utilizada para el cambio de contexto en Sistemas Operativos embebidos.
 - Restablecer los últimos valores de la siguiente tarea.
 - Ir a la siguiente tarea mediante el exception return.
 
+21. ¿Para qué se suele utilizar la excepción SVC? Expliquelo dentro de un marco de un sistema operativo embebido.\
+La excepción SVC suele ser utilizada para ejecutar instrucciones desde modo handler. Si se necesita pasar de modo no privilegiado a modo privilegiado, por ejemplo, es necesario escribir el LBS de la palabra de CONTROL. Esto puede realizarse, solamente, en modo privilegiado. Generando el disparo de SVC y reescribiendo el LBS de Control desde el SVC_Handler, este cambio de nive de privilegio es posible.
 
 # ISA
 1. ¿Qué son los sufijos y para qué se los utiliza? Dé un ejemplo\
