@@ -122,7 +122,10 @@ En todos estos escenarios la interoperabilidad de los distintos componentes de s
 Cuando ocurre un evento de interrupcion, se produce el proceso de stacking, donde se guardan un set de registros importantes en el stack. Se viene ejecutando la aplicacion en thread mode y ocurre el envento. Se ejecuta una secuencia de exceptcion y luego se el handler execution. Durante la secuencia de exepcion, en el bus de datos se produce el proceso de stacking, donde se guardan los registros y, en simultaneo, en el bus de instrucciones se produce el fetching, donde se va cargando el pipline con las instrucciones de la ISR.
 16. ¿Cómo cambia la operación de stacking al utilizar la unidad de punto flotante?
 17. Explique las características avanzadas de atención a interrupciones: tail chaining y late arrival.
-
+- Tail chaining:
+		Ocurren dos interrupciones de igual prioridad. Se ejecuta la primera ISR y al finalizar, en lugar de volver al thread mode, se queda en handler mode y se empieza a ejecutar la interrupcion siguiente. De esta formar no es necesario realizar el stacking entre interrupciones.
+- Late arrival:
+		Se produce una interrupcion de baja prioridad. Si durante el proceso de stacking (y ANTES del vector fech) se produce otra interrupcion de mayor prioridad, se atendera a esta ultima postergando la de menor prioridad. Luego se de terminar esta ISR, se ejecuta la de menor prioridad. Es posible que se produzca un Tail Chaining.
 
 17. ¿Qué es el systick? ¿Por qué puede afirmarse que su implementación favorece la portabilidad de los sistemas operativos embebidos?\
 El systick es un timer de los Cortex-M que permite generar una interrupcion periodica, lo que puede ser usados por los OS embebidos para mantener una referencia temporal.
