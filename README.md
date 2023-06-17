@@ -135,7 +135,7 @@ La MPU permite restringir el acceso a ciertas regiones de memoria. Es un perifer
 19. ¿Cuántas regiones pueden configurarse como máximo? ¿Qué ocurre en caso de haber
 solapamientos de las regiones? ¿Qué ocurre con las zonas de memoria no cubiertas por las
 regiones definidas?\
-Como maximo se pueden configurar 8 regiones.
+Como maximo se pueden configurar 8 regiones. En el caso que una o varias tareas no requieran el uso de toda una región sino de una parte, las regiones de dichas tareas pueden solaparse utilizando el SRD (Sub-Region Disable) y reduciendo, entonces, el número de regiones utilizadas. Si una región no habilitada por las definiciones de las zonas se solapa con una región habilitada, se aplicarán las reglas de acceso de la segunda. Si una región no habilitada y no solapada es accedida, generará una excepción de MemManage fault.
 
 # ISA
 1. ¿Qué son los sufijos y para qué se los utiliza? Dé un ejemplo\
