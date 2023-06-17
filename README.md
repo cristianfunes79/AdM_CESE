@@ -118,7 +118,8 @@ En todos estos escenarios la interoperabilidad de los distintos componentes de s
 - CMSIS SVD, an XML based file format to describe peripheral set in microcontroller products.
 - CMSIS RTOS, an API specification for embedded OS.
 - CMSIS DAP, a reference design for a debug interface adaptor.
-15. Cuando ocurre una interrupción, asumiendo que está habilitada ¿Cómo opera el microprocesador para atender a la subrutina correspondiente? Explique con un ejemplo.
+15. Cuando ocurre una interrupción, asumiendo que está habilitada ¿Cómo opera el microprocesador para atender a la subrutina correspondiente? Explique con un ejemplo.\
+Cuando ocurre un evento de interrupcion, se produce el proceso de stacking, donde se guardan un set de registros importantes en el stack. Se viene ejecutando la aplicacion en thread mode y ocurre el envento. Se ejecuta una secuencia de exceptcion y luego se el handler execution. Durante la secuencia de exepcion, en el bus de datos se produce el proceso de stacking, donde se guardan los registros y, en simultaneo, en el bus de instrucciones se produce el fetching, donde se va cargando el pipline con las instrucciones de la ISR.
 16. ¿Cómo cambia la operación de stacking al utilizar la unidad de punto flotante?
 17. Explique las características avanzadas de atención a interrupciones: tail chaining y late arrival.
 
