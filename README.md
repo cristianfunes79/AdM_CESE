@@ -120,7 +120,8 @@ En todos estos escenarios la interoperabilidad de los distintos componentes de s
 - CMSIS DAP, a reference design for a debug interface adaptor.
 15. Cuando ocurre una interrupción, asumiendo que está habilitada ¿Cómo opera el microprocesador para atender a la subrutina correspondiente? Explique con un ejemplo.\
 Cuando ocurre un evento de interrupcion, se produce el proceso de stacking, donde se guardan un set de registros importantes en el stack. Se viene ejecutando la aplicacion en thread mode y ocurre el envento. Se ejecuta una secuencia de exceptcion y luego se el handler execution. Durante la secuencia de exepcion, en el bus de datos se produce el proceso de stacking, donde se guardan los registros y, en simultaneo, en el bus de instrucciones se produce el fetching, donde se va cargando el pipline con las instrucciones de la ISR.
-16. ¿Cómo cambia la operación de stacking al utilizar la unidad de punto flotante?
+16. ¿Cómo cambia la operación de stacking al utilizar la unidad de punto flotante?\
+Ademas de los registros que se guardan en el stack al manejar una interrupcion, tambien se guardan registros relativos al punto flotante y el FPSCR. Ademas, si se viene usando punto flotante en la aplicacion, se deja el espacio para guardar estos registros de ser el caso en el que el handle los utiliza.
 17. Explique las características avanzadas de atención a interrupciones: tail chaining y late arrival.
 - Tail chaining:
 		Ocurren dos interrupciones de igual prioridad. Se ejecuta la primera ISR y al finalizar, en lugar de volver al thread mode, se queda en handler mode y se empieza a ejecutar la interrupcion siguiente. De esta formar no es necesario realizar el stacking entre interrupciones.
