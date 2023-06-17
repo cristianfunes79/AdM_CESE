@@ -136,6 +136,16 @@ La MPU permite restringir el acceso a ciertas regiones de memoria. Es un perifer
 solapamientos de las regiones? ¿Qué ocurre con las zonas de memoria no cubiertas por las
 regiones definidas?\
 Como maximo se pueden configurar 8 regiones. En el caso que una o varias tareas no requieran el uso de toda una región sino de una parte, las regiones de dichas tareas pueden solaparse utilizando el SRD (Sub-Region Disable) y reduciendo, entonces, el número de regiones utilizadas. Si una región no habilitada por las definiciones de las zonas se solapa con una región habilitada, se aplicarán las reglas de acceso de la segunda. Si una región no habilitada y no solapada es accedida, generará una excepción de MemManage fault.
+20. ¿Para qué se suele utilizar la excepción PendSV? ¿Cómo se relaciona su uso con el resto de las excepciones? Dé un ejemplo\
+
+PendSV es utilizada para el cambio de contexto en Sistemas Operativos embebidos. La excepción PendSV puede ser disparada desde la excepción periódica del SysTick. En el handler PendSV se deberá realizar varias acciones para el cambio de contexto:
+
+- Resguardar los valores actuales de los registros usados en la tarea actual.
+- Resguardar el valor del PSP actual.
+- Cargar en el PSP, el SP de la siguiente tarea.
+- Restablecer los últimos valores de la siguiente tarea.
+- Ir a la siguiente tarea mediante el exception return.
+
 
 # ISA
 1. ¿Qué son los sufijos y para qué se los utiliza? Dé un ejemplo\
