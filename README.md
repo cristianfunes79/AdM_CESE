@@ -98,7 +98,8 @@ El seteo del MSP es necesario porque algunas excepciones como la NMI o el HardFa
 12. ¿Qué entiende por “core peripherals”? ¿Qué diferencia existe entre estos y el resto de los periféricos?\
 Los core peripherals son los periféricos propios del procesador y son definidos por ARM. Los "device peripherals" son periféricos del SoC y dependen de cada fabricante (múltiples dispositivos de un mismo fabricante pueden o no tener los mismos periféricos).
 
-13. ¿Cómo se implementan las prioridades de las interrupciones? Dé un ejemplo
+13. ¿Cómo se implementan las prioridades de las interrupciones? Dé un ejemplo\
+Las prioridades de las interrupciones van desde -3 a 239, donde el valor numerico mas bajo significa la mayor prioridad. Las prioridades -3, -2 y -1 estan reservadas para las excepciones mas importantes (reset, NMI y hardfault).
 14. ¿Qué es el CMSIS? ¿Qué función cumple? ¿Quién lo provee? ¿Qué ventajas aporta?\
 CMSIS fue desarrollada por ARM para permitir que los fabricantes de microcontroladores y de software utilicen una infraestructura de software consistente para desarrollar soluciones de software para los Cortex-M. Actualmente el mercado de los mircocontroladores Cortex-M abarca:
 - Más de 15 vendedores de microcontroladores Cortex-M, con algunos venderores que proveen FPGA y ASICs basados en Cortex-M.
